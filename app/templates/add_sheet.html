@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% import 'macros.html' as macros %}
+
+{% block css %}
+<link rel="stylesheet" href="static/bower/bootstrap-tokenfield/dist/css/bootstrap-tokenfield.min.css"></script>
+<link rel="stylesheet" href="static/bower/bootstrap-tokenfield/dist/css/tokenfield-typeahead.min.css"></script>
+{% endblock css %}
+
+{% block js %}
+<script src="static/bower/bootstrap-tokenfield/dist/bootstrap-tokenfield.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function () {
+    $('#name').tokenfield({
+        autocomplete: {
+            //source: ['red','blue','green','yellow','violet','brown','purple','black','white'],
+            source: function(request, response){
+                $.ajax({
+                    type: "POST",
+                    url: "{{ url_for('search_service') }}",
+                    data: JSON.stringify({
+                        get: 'get_sheet_name',
+                        request: request.term
+                    }, null, '\t'),
+                    contentType: "application/json;charset=utf-8",
+                    success: function (msg) {
+                        response(msg.response);
+                    },
+                    // TODO: if debug == False - return None
+                    error: function (msg) {
+                        alert(msg.status + ' ' + msg.statusText);
+                    }
+                })
+             },
+
+
+
+            delay: 100
+            },
+    //max num of tokens
+    })
+
+});
+</script>
+{% endblock js %}
+
+{% block content %}
+<div class="row">
+<div class="col-xs-12">
+    {% call macros.render_form(form, action_url=url_for('add_sheets'), action_text='Add sheet',
+    class_='form') %}
+        {% for field in form if field.widget.input_type != 'hidden' %}
+        {{ macros.render_field(field, label_visible=true) }}
+        {% endfor %}
+    {% endcall %}
+</div>
+</div>
+{% endblock content %} 
