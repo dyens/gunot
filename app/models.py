@@ -10,17 +10,6 @@ sqlalchemy models
 
 from app import db
 
-CENTURIES = [
-        (14, u'XIV'),
-        (15, u'XV'),
-        (16, u'XVI'),
-        (17, u'XVII'),
-        (18, u'XVIII'),
-        (19, u'XIX'),
-        (20, u'XX'),
-        (21, u'XXI'),
-        ]
-
 
 class Author(db.Model):
     u'''
@@ -43,17 +32,6 @@ class Arranger(db.Model):
 
     def __repr__(self):
         return '<Arranger %r>' % (self.name)
-
-class MusicForm(db.Model):
-    u'''
-    Музыкальные формы
-    '''
-    id = db.Column(db.Integer, primary_key = True)
-    name = db.Column(db.String(120), index = True)
-    sheets = db.relationship('Sheet', backref=u'music_form', lazy='dynamic')
-
-    def __repr__(self):
-        return '<Form %r>' % (self.name)
 
 class File(db.Model):
     u'''
@@ -93,13 +71,11 @@ class Sheet(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     author_id = db.Column(db.Integer, db.ForeignKey('author.id'))
     arranger_id = db.Column(db.Integer, db.ForeignKey('arranger.id'))
-    music_form_id = db.Column(db.Integer, db.ForeignKey('music_form.id'))
     file_id = db.Column(db.Integer, db.ForeignKey('file.id'))
     instruments = db.relationship("Instrument", 
             secondary=instrument_sheet_association,
             backref=db.backref('sheets', lazy='dynamic'))
     name = db.Column(db.String(120), index = True)
-    century = db.Column(db.Integer)
     published = db.Column(db.Boolean, default=False)
 
     def __repr__(self):

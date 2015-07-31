@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% import 'macros.html' as macros %}
+
+{% block css %}
+<link rel="stylesheet" href="static/bower/bootstrap-tokenfield/dist/css/bootstrap-tokenfield.min.css"></script>
+<link rel="stylesheet" href="static/bower/bootstrap-tokenfield/dist/css/tokenfield-typeahead.min.css"></script>
+{% endblock css %}
+
+{% block js %}
+<script src="static/bower/bootstrap-tokenfield/dist/bootstrap-tokenfield.min.js"></script>
+<script src="static/js/search.js"></script>
+{% endblock js %}
+
+{% block content %}
+<div class="row">
+<div class="col-xs-12">
+    {% call macros.render_form(form, action_url=url_for('search_sheet'), action_text='Search',
+    class_='form') %}
+        {% for field in form if field.widget.input_type != 'hidden' %}
+        {{ macros.render_field(field, label_visible=true) }}
+        {% endfor %}
+    {% endcall %}
+</div>
+</div>
+{% endblock content %} 

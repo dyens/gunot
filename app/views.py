@@ -3,16 +3,13 @@
 #
 # 2015-01-15, dyens
 #
+from app import app
 from flask import render_template, flash, redirect, url_for
 from flask import request
-from flask import jsonify
-
-from app import app
-
-
-
-from forms import SheetForm
-from models import Author
+from forms import SheetForm, SearchSheetForm
+from utils import upload
+from utils import ServiceFinder
+from werkzeug import secure_filename
 
 
 @app.route('/')
@@ -52,55 +49,31 @@ def sheets():
         user = user,
         data = data)
 
+#FLASH_MESSAGES = ['message', 'info', 'warning', 'error']
+
 @app.route('/add_sheet', methods = ['GET', 'POST'])
-def add_sheets():
+def add_sheet():
     form = SheetForm()
     if form.validate_on_submit():
-        flash(u'Файл загружен')
-        return redirect(url_for('sheets'))
+        upload()
+        flash(u'Файл загружен', 'message')
+#        return redirect(url_for('sheets'))
     return render_template("add_sheet.html",
         title = 'List of sheets',
         form = form)
 
+@app.route('/search_sheet', methods = ['GET', 'POST'])
+def search_sheet():
+    form = SearchSheetForm()
+    if form.validate_on_submit():
+        return redirect(url_for('sheets'))
+    return render_template("search_sheet.html",
+        title = 'Search sheet',
+        form = form)
 
-class ServiceFinder(object):
-    def get(self, json):
-        error = None
-        response = []
-        get = json.get('get', None)
-        if get is not None and get.startswith('get_sheet_'):
-            request = json.get('request', None)
-            if request is not None:
-                func = getattr(self, get, None)
-                if func is not None:
-                    try:
-                        response = func(request)
-                    except Exception as e:
-                        error = e.message
-                    answer = {'response': response,
-                              'error': error}
-                    return answer
-        error = 'wrong service request'
-        answer = {'error': error}
-        return answer
-
-    def get_json(self, json):
-        return jsonify(self.get(json))
-
-    def get_sheet_name(self, name):
-        return ['a', 'b', 'c']
-    def get_sheet_author(self, name):
-        pass
-    def get_sheet_arranger(self, name):
-        pass
-    def get_sheet_music_form(self, name):
-        pass
-    def get_sheet_instrument(self, name):
-        pass
 
 @app.route('/search_service', methods = ['POST'])
 def search_service():
-    a =  ServiceFinder().get_json(request.json)
-    print a
-    return a
+    json =  ServiceFinder().get_json(request.json)
+    return json
 

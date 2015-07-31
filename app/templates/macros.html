@@ -95,3 +95,62 @@ class_ - sets a class for form
 <button type="submit" class="{{ btn_class }}">{{ action_text }} </button>
 </form>
 {%- endmacro %} 
+
+{# Renders flash messages:
+e.g.
+{% call macros.render_flash('message', 'category') %}
+{% endcall %}
+#}
+{% macro render_flash(message, category) -%}
+
+{% if category == 'info' %}
+    {% set bootstrap_category = 'alert-info' %}
+{% elif category == 'warning'%}
+    {% set bootstrap_category = 'alert-warning' %}
+{% elif category == 'error'%}
+    {% set bootstrap_category = 'alert-danger' %}
+{% else %}
+    {% set bootstrap_category = 'alert-success' %}
+{% endif %}
+
+<div class="alert {{ bootstrap_category }} fade in">{{ message }}</div>
+{%- endmacro %} 
+
+{# Renders WTForm in bootstrap way. There are two ways to call function:
+- as macros: it will render all field forms using cycle to iterate over them
+- as call: it will insert form fields as you specify:
+e.g. {% call macros.render_upload_form(form, action_url=url_for('login_view'), action_text='Login',
+class_='login-form') %}
+{{ macros.render_field(form.email, placeholder='Input email', type='email') }}
+{{ macros.render_field(form.password, placeholder='Input password', type='password') }}
+{{ macros.render_checkbox_field(form.remember_me, type='checkbox') }}
+{% endcall %}
+ 
+Params:
+form - WTForm class
+action_url - url where to submit this form
+action_text - text of submit button
+class_ - sets a class for form
+#}
+{% macro render_upload_form(form, action_url='', action_text='Submit', class_='', btn_class='btn btn-default') -%}
+ 
+<form method="POST" enctype="multipart/form-data" action="{{ action_url }}" role="form" class="{{ class_ }}">
+{{ form.hidden_tag() if form.hidden_tag }}
+{% if caller %}
+{{ caller() }}
+{% else %}
+{% for f in form %}
+{% if f.type == 'BooleanField' %}
+{{ render_checkbox_field(f) }}
+{% elif f.type == 'RadioField' %}
+{{ render_radio_field(f) }}
+{% else %}
+{{ render_field(f) }}
+{% endif %}
+{% endfor %}
+{% endif %}
+<button type="submit" class="{{ btn_class }}">{{ action_text }} </button>
+</form>
+{%- endmacro %} 
+
+

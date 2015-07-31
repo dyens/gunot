@@ -1,3 +1,4 @@
+{% import 'macros.html' as macros %}
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
@@ -56,15 +57,23 @@
     </nav>
 
     <div class="container">
+        <div class="row">
+            {% with messages = get_flashed_messages(with_categories=True) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                    <div class="col-md-1">
+                            {{ macros.render_flash(message, category) }}
+                    </div>
+                {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
         {% block content %}{% endblock %}
-
       <hr>
-
       <footer>
         {% if footer %}
         <p>{{footer}}</p>
         {% else %}
-        <p>&copy; 2015 A. Kapustin</p>
         {% endif %}
       </footer>
     </div> 
@@ -81,15 +90,6 @@
 
         <script src="static/js/main.js"></script>
 
-        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
-        <script>
-            (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
-            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
-            e=o.createElement(i);r=o.getElementsByTagName(i)[0];
-            e.src='//www.google-analytics.com/analytics.js';
-            r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
-            ga('create','UA-XXXXX-X');ga('send','pageview');
-        </script>
         {% block js %}{% endblock %}
     </body>
 </html>
