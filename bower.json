@@ -1,0 +1,21 @@
+{
+  "name": "gunot",
+  "version": "0.0.0",
+  "homepage": "https://github.com/dyens/gunot",
+  "authors": [
+    "dyens <dyens@mail.ru>"
+  ],
+  "description": "guitar notes",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "app/static/bower",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap-tokenfield": "~0.12.1"
+  }
+}
