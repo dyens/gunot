@@ -9,9 +9,8 @@ install:
   - sudo add-apt-repository -y ppa:chris-lea/node.js
   - sudo apt-get -y update
   - sudo apt-get -y install nodejs
-  - sudo npm install -g grunt-cli
   - sudo npm install -g bower
-  - sudo npm install
+
 before_script:
   - bower install
 
