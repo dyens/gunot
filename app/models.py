@@ -44,8 +44,8 @@ class File(db.Model):
     # https://ru.wikipedia.org/wiki/%D0%A1%D0%BF%D0%B8%D1%81%D0%BE%D0%BA_MIME-%D1%82%D0%B8%D0%BF%D0%BE%D0%B2#application
     file_type = db.Column(db.String(120))
     file_size = db.Column(db.Integer)
-    # one to one relationship (uselist = False)
-    sheet = db.relationship('Sheet', backref=u'file', uselist=False)
+    # maybe many files for one sheet
+    sheet_id = db.Column(db.Integer, db.ForeignKey('sheet.id'))
 
     def __repr__(self):
         return '<File %r>' % (self.file_name)
@@ -64,19 +64,37 @@ class Instrument(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(120), index = True)
 
+
+
+class SheetName(db.Model):
+    u'''
+    Названия произведений
+    '''
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(120), index = True)
+    sheet_id = db.Column(db.Integer, db.ForeignKey('sheet.id'))
+
 class Sheet(db.Model):
     u'''
     Произведения
     '''
     id = db.Column(db.Integer, primary_key = True)
+
     author_id = db.Column(db.Integer, db.ForeignKey('author.id'))
     arranger_id = db.Column(db.Integer, db.ForeignKey('arranger.id'))
-    file_id = db.Column(db.Integer, db.ForeignKey('file.id'))
-    instruments = db.relationship("Instrument", 
+    files = db.relationship('File', backref='sheet',
+                                lazy='dynamic')
+
+    instruments = db.relationship('Instrument', 
             secondary=instrument_sheet_association,
             backref=db.backref('sheets', lazy='dynamic'))
-    name = db.Column(db.String(120), index = True)
-    published = db.Column(db.Boolean, default=False)
+
+    names = db.relationship('SheetName', backref='sheet',
+                                lazy='dynamic')
+    
+    # Sheet = Suite BWV 1, Sheet.parent = Allegro
+    parent_id = db.Column(db.Integer, db.ForeignKey('sheet.id'), index=True)
+    parent = db.relationship('Sheet', remote_side=id, backref='parts')
 
     def __repr__(self):
         return '<Sheet %r - %r>' % (self.author, self.name)
