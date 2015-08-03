@@ -16,4 +16,5 @@ pbr==0.10.7
 six==1.9.0
 sqlalchemy-migrate==0.9.4
 sqlparse==0.1.14
+testoob==1.15
 wsgiref==0.1.2

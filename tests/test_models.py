@@ -4,7 +4,9 @@
 # 2015-08-02, dyens
 #
 
-#TODO: config test nosetests very slow now
+from test import init_path
+init_path()
+
 import unittest
 from utils import TestApp, TestDb
 from app.models import Author, Arranger, File
@@ -135,12 +137,6 @@ class TestSheet(TestDb):
         sheet.files.append(file_1)
         sheet.files.append(file_2)
         self.assertEqual(sheet.files.count(), 2)
-
-
-
-
-
-
 
 
 
