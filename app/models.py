@@ -10,6 +10,17 @@ sqlalchemy models
 
 from app import db
 
+def get_or_create(model, **kwargs):
+    instance = db.session.query(model).filter_by(**kwargs).first()
+    if instance:
+        return instance
+    else:
+        instance = model(**kwargs)
+        db.session.add(instance)
+        db.session.commit()
+        return instance
+
+
 
 class Author(db.Model):
     u'''
@@ -64,7 +75,8 @@ class Instrument(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(120), index = True)
 
-
+    def __repr__(self):
+        return '<Instrument %r>' % (self.name)
 
 class SheetName(db.Model):
     u'''
@@ -73,6 +85,11 @@ class SheetName(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(120), index = True)
     sheet_id = db.Column(db.Integer, db.ForeignKey('sheet.id'))
+
+    def __repr__(self):
+        return '<SheetName %r>' % (self.name)
+
+
 
 class Sheet(db.Model):
     u'''
@@ -96,7 +113,68 @@ class Sheet(db.Model):
     parent_id = db.Column(db.Integer, db.ForeignKey('sheet.id'), index=True)
     parent = db.relationship('Sheet', remote_side=id, backref='parts')
 
+    @property
+    def childrens(self):
+        return Sheet.query.filter_by(parent=self)
+
+    @staticmethod
+    def create_sheet(author_name, files, instrument_names=None,
+            names=None, instrument_name=None, name=None,
+            parent=None, arranger_name=None):
+        u'''
+        author_name, arranger_name - string parameters,
+        files - list of file objects,
+        instrument_names - list of names of instruments,
+        names - list of sheet names,
+        parent - sheet object
+        '''
+
+        instruments = []
+        if instrument_name:
+            instrument = get_or_create(Instrument, name=instrument_name)
+            instruments.append(instrument)
+        elif instrument_names:
+            for instrument_name in instrument_names:
+                instrument = get_or_create(Instrument, name=instrument_name)
+                instruments.append(instrument)
+        else:
+            raise TypeError(u'instrument names should be set')
+
+        names_list = []
+        if name:
+            name_obj = get_or_create(SheetName, name=name)
+            names_list.append(name_obj)
+        elif names:
+            for name in names:
+                name_obj = get_or_create(SheetName, name=name)
+                names_list.append(name_obj)
+        else:
+            raise TypeError(u'Sheet name should be set')
+
+        author = get_or_create(Author, name=author_name)
+        arranger = None
+        if arranger_name:
+            arranger = get_or_create(Arranger, name=arranger_name)
+
+        sheet = Sheet(
+                author=author,
+                arranger=arranger,
+                files=files,
+                instruments=instruments,
+                names=names_list,
+                parent=parent
+                )
+        db.session.add(sheet)
+        db.session.commit()
+        return sheet
+
+
+
+
+
+
+
     def __repr__(self):
-        return '<Sheet %r - %r>' % (self.author, self.name)
+        return '<Sheet %r>' % (self.id)
 
 
