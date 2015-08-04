@@ -7,7 +7,6 @@ from app import app
 from flask import render_template, flash, redirect, url_for
 from flask import request
 from forms import SheetForm, SearchSheetForm
-from utils import upload
 from utils import ServiceFinder
 from werkzeug import secure_filename
 
@@ -55,7 +54,7 @@ def sheets():
 def add_sheet():
     form = SheetForm()
     if form.validate_on_submit():
-        upload()
+        # TODO: upload files and create sheets from models.Sheet
         flash(u'Файл загружен', 'message')
 #        return redirect(url_for('sheets'))
     return render_template("add_sheet.html",
