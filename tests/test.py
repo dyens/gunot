@@ -14,6 +14,8 @@ def init_path():
     PYTHON_PATH = sys.path
     if APP_DIR not in PYTHON_PATH:
         PYTHON_PATH.append(APP_DIR)
+    if TEST_DIR not in PYTHON_PATH:
+        PYTHON_PATH.append(TEST_DIR)
 
 
 if __name__ == "__main__":

@@ -11,6 +11,10 @@ from wtforms.validators import Required
 from wtforms import validators
 from models import Author, Arranger, Instrument, File
 from utils import get_file_path
+from werkzeug import secure_filename
+from app import db
+from app import app
+
 
 class AuthorForm(Form):
     author_name = TextField(u'Автор', validators = [Required()])
@@ -33,7 +37,7 @@ class SheetForm(Form):
         # TODO: think about saved file names!!
         # mb md5 ??
         file_name = secure_filename(self.pdf.data.filename)
-        file_name, path = get_file_path(file_name, UPLOAD_PATH)
+        file_name, path = get_file_path(file_name, app.config['UPLOAD_PATH'])
         file_type = self.pdf.data.content_type
         file_size = self.pdf.data.content_length
         file_ = File(
@@ -41,9 +45,7 @@ class SheetForm(Form):
                 file_size = file_size)
         db.session.add(file_)
         db.session.commit()
-
-        if not os.path.exists(path):
-            self.pdf.data.save(path)
+        self.pdf.data.save(path)
         return file_
 
 

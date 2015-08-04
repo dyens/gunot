@@ -9,6 +9,7 @@ from flask import request
 from forms import SheetForm, SearchSheetForm
 from utils import ServiceFinder
 from werkzeug import secure_filename
+from models import Sheet
 
 
 @app.route('/')
@@ -55,6 +56,19 @@ def add_sheet():
     form = SheetForm()
     if form.validate_on_submit():
         # TODO: upload files and create sheets from models.Sheet
+        file_ = form.create_file()
+        files = [file_]
+        author_name = form.author.data
+        arranger_name = form.arranger.data or None
+        instrument_name = form.instrument.data
+        name = form.name.data
+        Sheet.create_sheet(
+                author_name = author_name,
+                arranger_name = arranger_name,
+                instrument_name = instrument_name,
+                name = name,
+                files = files
+                )
         flash(u'Файл загружен', 'message')
 #        return redirect(url_for('sheets'))
     return render_template("add_sheet.html",

@@ -102,13 +102,13 @@ class Sheet(db.Model):
     files = db.relationship('File', backref='sheet',
                                 lazy='dynamic')
 
-    instruments = db.relationship('Instrument', 
+    instruments = db.relationship('Instrument',
             secondary=instrument_sheet_association,
             backref=db.backref('sheets', lazy='dynamic'))
 
     names = db.relationship('SheetName', backref='sheet',
                                 lazy='dynamic')
-    
+
     # Sheet = Suite BWV 1, Sheet.parent = Allegro
     parent_id = db.Column(db.Integer, db.ForeignKey('sheet.id'), index=True)
     parent = db.relationship('Sheet', remote_side=id, backref='parts')

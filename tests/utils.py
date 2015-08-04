@@ -7,13 +7,13 @@
 from flask import Flask
 from flask.ext.testing import TestCase
 from flask.ext.testing import LiveServerTestCase
-from app import db
+from app import app, db, config
 
 class TestApp(TestCase):
 
     def create_app(self):
-        app = Flask(__name__)
-        app.config['TESTING'] = True
+        app.config.from_object('config')
+        self.app = app.test_client()
         return app
 
 
@@ -28,20 +28,19 @@ class TestLive(LiveServerTestCase):
     '''
 
     def create_app(self):
-        app = Flask(__name__)
-        app.config['TESTING'] = True
-        # Default port is 5000
-        app.config['LIVESERVER_PORT'] = 8943
+        app.config.from_object('config')
+        self.app = app.test_client()
         return app
 
 
-class TestDb(TestApp):
+class TestDb(TestCase):
 
-    SQLALCHEMY_DATABASE_URI = "sqlite://"
-    TESTING = True
 
     def create_app(self):
-        return super(TestDb, self).create_app()
+        app.config.from_object('config')
+        self.app = app.test_client()
+        return app
+
 
     def setUp(self):
         db.create_all()
@@ -51,5 +50,19 @@ class TestDb(TestApp):
     def tearDown(self):
         db.session.remove()
         db.drop_all()
+
+class TestLiveWithDb(TestLive, TestDb):
+    pass
+
+
+class TestNotRenderTemplates(TestCase):
+#    def test_assert_not_process_the_template(self):
+#        response = self.client.get("/template/")
+#
+#        assert "" == response.data
+    render_templates = False
+
+class TestNotRenderTemplatesWithDb(TestNotRenderTemplates, TestDb):
+    pass
 
 
